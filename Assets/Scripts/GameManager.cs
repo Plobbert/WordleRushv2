@@ -188,6 +188,7 @@ public class GameManager : MonoBehaviour
             {
                 typedWord = typedWord.Substring(0, lettersTyped - 1);
                 lettersTyped--;
+                typeText("");
             }
         }
         if (Input.GetKeyDown(KeyCode.Return))
@@ -203,9 +204,8 @@ public class GameManager : MonoBehaviour
 
     void typeText(string letterToType)
     {
-        string boxNum = wordsEntered + "" + (lettersTyped - 1);
+        string boxNum = wordsEntered + "-" + (lettersTyped);
         GameObject box = GameObject.Find(boxNum);
-        print(box);
         TMPro.TextMeshProUGUI text = box.GetComponent<TMPro.TextMeshProUGUI>();
         text.text = letterToType;
     }
