@@ -41,6 +41,7 @@ public class GameManager : MonoBehaviour
             {
                 nextRound = false;
                 resetBoard();
+                currentRound++;
                 GameObject roundObj = GameObject.Find("Round");
                 TMPro.TextMeshProUGUI roundText = roundObj.GetComponent<TMPro.TextMeshProUGUI>();
                 roundText.text = roundText.text.Substring(0, roundText.text.Length - 1) + currentRound.ToString();
@@ -274,7 +275,6 @@ public class GameManager : MonoBehaviour
                         text.text = "Correct!";
                         text.color = new Color(0, 256, 0);
                         nextRound = true;
-                        currentRound++;
                         isPlayTime = false;
                     }
                     else
@@ -303,9 +303,8 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
-            currentRound = 1;
             resetBoard();
         }
     }
@@ -396,13 +395,7 @@ public class GameManager : MonoBehaviour
         TMPro.TextMeshProUGUI text1 = box1.GetComponent<TMPro.TextMeshProUGUI>();
         text1.text = "";
         flag = false;
-        if (currentRound != 1)
-        {
-            isPlayTime = false;
-        } else
-        {
-            isPlayTime = true;
-        }
+        isPlayTime = false;
         cntdnw = 120.0F;
         timerText.text = "2:00";
         GameObject X = GameObject.Find("Cross");
