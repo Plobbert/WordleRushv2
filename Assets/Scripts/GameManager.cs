@@ -219,6 +219,10 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            resetBoard();
+        }
     }
 
     void typeText(string letterToType)
@@ -272,5 +276,32 @@ public class GameManager : MonoBehaviour
                 sprite1.color = new Color(0.3F, 0.3F, 0.3F);
             }
         }
+    }
+
+    void resetBoard()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            for (int j = 0; j < 5; j++)
+            {
+                string boxNum = i + "-" + (j);
+                GameObject box = GameObject.Find(boxNum);
+                TMPro.TextMeshProUGUI text = box.GetComponent<TMPro.TextMeshProUGUI>();
+                text.text = "";
+                SpriteRenderer sprite = box.GetComponent<SpriteRenderer>();
+                sprite.color = new Color(.9F, .2F, .2F);
+            }
+        }
+        GameObject keyboard = GameObject.Find("Keyboard");
+        for (int i = 0; i < keyboard.transform.childCount; i++)
+        {
+            GameObject Go = keyboard.transform.GetChild(i).gameObject;
+            SpriteRenderer sprite = Go.GetComponent<SpriteRenderer>();
+            sprite.color = new Color(.55F, .55F, .55F);
+        }
+        lettersTyped = 0;
+        typedWord = "";
+        theWord = wordList[Random.Range(0, wordList.Length)];
+        wordsEntered = 0;
     }
 }
