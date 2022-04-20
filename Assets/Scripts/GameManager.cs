@@ -56,6 +56,8 @@ public class GameManager : MonoBehaviour
         Application.targetFrameRate = 100;
         sideColor = new Color(1, 1, 1);
         musicList = new AudioSource[2];
+        musicList[0] = audio;
+        musicList[1] = audio2;
     }
 
     // Update is called once per frame
