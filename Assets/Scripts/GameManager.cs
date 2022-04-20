@@ -93,7 +93,7 @@ public class GameManager : MonoBehaviour
                 xTimer -= Time.deltaTime;
                 GameObject X = GameObject.Find("Cross");
                 TMPro.TextMeshProUGUI XText = X.GetComponent<TMPro.TextMeshProUGUI>();
-                XText.alpha -= .004F;
+                XText.alpha -= .4F * Time.deltaTime;
 
             } else
             {
@@ -509,7 +509,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < flg.transform.childCount; i++)
         {
             GameObject Go = flg.transform.GetChild(i).gameObject;
-            Go.transform.position = new Vector3(Go.transform.position.x, Go.transform.position.y - 2F, 1);
+            Go.transform.position = new Vector3(Go.transform.position.x, Go.transform.position.y - (170F * Time.deltaTime), 1);
             Vector3 position = Go.GetComponent<SpriteRenderer>().bounds.center;
             if (i <= rotations.Count && i > 0)
             {
@@ -527,7 +527,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < flg2.transform.childCount; i++)
         {
             GameObject Go = flg2.transform.GetChild(i).gameObject;
-            Go.transform.position = new Vector3(Go.transform.position.x, Go.transform.position.y - 2F, 1);
+            Go.transform.position = new Vector3(Go.transform.position.x, Go.transform.position.y - (170F * Time.deltaTime), 1);
             Vector3 position = Go.GetComponent<SpriteRenderer>().bounds.center;
             if (i <= rotations2.Count && i > 0)
             {
