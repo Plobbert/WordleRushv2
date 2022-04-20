@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
     bool isPlayTime, flag, xActive, nextRound, canType;
     int currentRound;
     public AudioSource audio, audio2;
+    AudioSource[] musicList;
     string sideWord = "WORDLERUSH";
     Color sideColor;
     // Start is called before the first frame update
@@ -54,6 +55,7 @@ public class GameManager : MonoBehaviour
         firstRotation = Random.Range(-360, 360);
         Application.targetFrameRate = 100;
         sideColor = new Color(1, 1, 1);
+        musicList = new AudioSource[2];
     }
 
     // Update is called once per frame
@@ -63,14 +65,7 @@ public class GameManager : MonoBehaviour
         {
             if (!audio2.isPlaying)
             {
-                audio2.Play();
-            }
-        }
-        if (!audio2.isPlaying)
-        {
-            if (!audio.isPlaying)
-            {
-                audio.Play();
+                musicList[Random.Range(0, 1)].Play();
             }
         }
         if (nextRound)
