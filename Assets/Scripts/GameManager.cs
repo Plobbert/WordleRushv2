@@ -21,8 +21,7 @@ public class GameManager : MonoBehaviour
     TMPro.TextMeshProUGUI timerText;
     bool isPlayTime, flag, xActive, nextRound, canType;
     int currentRound;
-    public AudioSource audio, audio2;
-    AudioSource[] musicList;
+    public AudioSource audio;
     string sideWord = "WORDLERUSH";
     Color sideColor;
     // Start is called before the first frame update
@@ -55,21 +54,11 @@ public class GameManager : MonoBehaviour
         firstRotation = Random.Range(-360, 360);
         Application.targetFrameRate = 100;
         sideColor = new Color(1, 1, 1);
-        musicList = new AudioSource[2];
-        musicList[0] = audio;
-        musicList[1] = audio2;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!audio.isPlaying)
-        {
-            if (!audio2.isPlaying)
-            {
-                musicList[Random.Range(0, 1)].Play();
-            }
-        }
         if (nextRound)
         {
             if (roundTimer > 0)
