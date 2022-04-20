@@ -48,8 +48,9 @@ public class GameManager : MonoBehaviour
         }
         flg = GameObject.Find("FallingLetterGroup");
         flg2 = GameObject.Find("FallingLetterGroup2");
-        smooth = Time.deltaTime * 6.0F;
+        smooth = Time.deltaTime * 15.0F;
         firstRotation = Random.Range(-360, 360);
+        Application.targetFrameRate = 100;
     }
 
     // Update is called once per frame
@@ -92,7 +93,7 @@ public class GameManager : MonoBehaviour
                 xTimer -= Time.deltaTime;
                 GameObject X = GameObject.Find("Cross");
                 TMPro.TextMeshProUGUI XText = X.GetComponent<TMPro.TextMeshProUGUI>();
-                XText.alpha -= .0005F;
+                XText.alpha -= .004F;
 
             } else
             {
@@ -508,7 +509,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < flg.transform.childCount; i++)
         {
             GameObject Go = flg.transform.GetChild(i).gameObject;
-            Go.transform.position = new Vector3(Go.transform.position.x, Go.transform.position.y - .2F, 1);
+            Go.transform.position = new Vector3(Go.transform.position.x, Go.transform.position.y - 2F, 1);
             Vector3 position = Go.GetComponent<SpriteRenderer>().bounds.center;
             if (i <= rotations.Count && i > 0)
             {
@@ -526,7 +527,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < flg2.transform.childCount; i++)
         {
             GameObject Go = flg2.transform.GetChild(i).gameObject;
-            Go.transform.position = new Vector3(Go.transform.position.x, Go.transform.position.y - .2F, 1);
+            Go.transform.position = new Vector3(Go.transform.position.x, Go.transform.position.y - 2F, 1);
             Vector3 position = Go.GetComponent<SpriteRenderer>().bounds.center;
             if (i <= rotations2.Count && i > 0)
             {
