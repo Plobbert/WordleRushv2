@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
     bool isPlayTime, flag, xActive, nextRound, canType;
     int currentRound;
     public AudioSource audio, audio2;
+    string sideWord = "WORDLERUSH";
+    Color sideColor;
     // Start is called before the first frame update
     void Start()
     {
@@ -51,6 +53,7 @@ public class GameManager : MonoBehaviour
         smooth = Time.deltaTime * 15.0F;
         firstRotation = Random.Range(-360, 360);
         Application.targetFrameRate = 100;
+        sideColor = new Color(1, 1, 1);
     }
 
     // Update is called once per frame
@@ -111,15 +114,20 @@ public class GameManager : MonoBehaviour
             newLetter.AddComponent<TMPro.TextMeshProUGUI>();
             newLetter.GetComponent<TMPro.TextMeshProUGUI>().text = alphabet[Random.Range(0, 26)];
             newLetter.transform.SetParent(GameObject.Find("FallingLetterGroup").transform);
-            newLetter.transform.position = new Vector3(-885, 585, 0);
+            newLetter.transform.position = new Vector3(GameObject.Find("Reference").transform.position.x, 585, 0);
             newLetter.AddComponent<SpriteRenderer>();
             RectTransform rt = newLetter.GetComponent<RectTransform>();
             rt.sizeDelta = new Vector2(50, 50);
             newLetter.GetComponent<TMPro.TextMeshProUGUI>().fontStyle = FontStyles.Bold;
             newLetter.GetComponent<TMPro.TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
             newLetter.GetComponent<TMPro.TextMeshProUGUI>().fontSize = 48;
+            newLetter.GetComponent<TMPro.TextMeshProUGUI>().color = sideColor;
+            if (sideWord.Length > 0)
+            {
+                newLetter.GetComponent<TMPro.TextMeshProUGUI>().text = sideWord.Substring(0, 1);
+            }
             GameObject newLetter2 = new GameObject();
-            newLetter2.transform.position = new Vector3(885, 585, 0);
+            newLetter2.transform.position = new Vector3(-1 * GameObject.Find("Reference").transform.position.x, 585, 0);
             newLetter2.AddComponent<TMPro.TextMeshProUGUI>();
             newLetter2.GetComponent<TMPro.TextMeshProUGUI>().text = alphabet[Random.Range(0, 26)];
             newLetter2.transform.SetParent(GameObject.Find("FallingLetterGroup2").transform);
@@ -129,6 +137,19 @@ public class GameManager : MonoBehaviour
             newLetter2.GetComponent<TMPro.TextMeshProUGUI>().fontStyle = FontStyles.Bold;
             newLetter2.GetComponent<TMPro.TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
             newLetter2.GetComponent<TMPro.TextMeshProUGUI>().fontSize = 48;
+            newLetter2.GetComponent<TMPro.TextMeshProUGUI>().color = sideColor;
+            if (sideWord.Length > 0)
+            {
+                newLetter2.GetComponent<TMPro.TextMeshProUGUI>().text = sideWord.Substring(0, 1);
+                if (sideWord.Length == 1)
+                {
+                    sideWord = "";
+                    sideColor = new Color(1, 1, 1);
+                } else
+                {
+                    sideWord = sideWord.Substring(1, sideWord.Length - 1);
+                }
+            }
             //newLetter.transform.localScale = new Vector3(55, 69, 1);
             rotations.Add(new Vector3(0, 0, Random.Range(-360, 360)));
             rotations2.Add(new Vector3(0, 0, Random.Range(-360, 360)));
@@ -154,6 +175,8 @@ public class GameManager : MonoBehaviour
                 GameObject box = GameObject.Find("Correctness");
                 TMPro.TextMeshProUGUI text = box.GetComponent<TMPro.TextMeshProUGUI>();
                 text.text = "FAILURE\n\nWord: " + theWord.ToUpper();
+                sideWord = "FAILURE";
+                sideColor = new Color(1, 0, 0);
                 text.color = new Color(256, 0, 0);
                 isPlayTime = false;
                 canType = false;
@@ -348,6 +371,8 @@ public class GameManager : MonoBehaviour
                         if (typedWord.ToLower().Equals(theWord))
                         {
                             text.text = "Correct!";
+                            sideColor = new Color(0, 1, 0);
+                            sideWord = "CORRECT";
                             text.color = new Color(0, 256, 0);
                             nextRound = true;
                             isPlayTime = false;
@@ -357,6 +382,8 @@ public class GameManager : MonoBehaviour
                             if (wordsEntered == 5)
                             {
                                 text.text = "FAILURE\n\nWord: " + theWord.ToUpper();
+                                sideWord = "FAILURE";
+                                sideColor = new Color(1, 0, 0);
                                 text.color = new Color(256, 0, 0);
                                 isPlayTime = false;
                             }
