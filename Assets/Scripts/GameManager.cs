@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
         boxContainer = GameObject.Find("BoxContainer");
         statsDown = false;
         statsContainer = GameObject.Find("StatBoxContainer");
-        downPos = statsContainer.transform.position.y - 550;
+        downPos = statsContainer.transform.position.y - 500;
         upPos = statsContainer.transform.position.y;
         AverageGuess = GameObject.Find("AverageGuess").GetComponent<TMPro.TextMeshProUGUI>();
         TotalGuessTime = GameObject.Find("TotalGuessTime").GetComponent<TMPro.TextMeshProUGUI>();
