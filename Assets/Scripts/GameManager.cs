@@ -14,14 +14,15 @@ public class GameManager : MonoBehaviour
     List<Vector3> rotations2 = new List<Vector3>();
     float[] columnSpeeds = { 3.0F, 3.0F, 3.0F, 3.0F, 3.0F };
     float[] columnX = { -210.0F, -105.0F, 0.0F, 105.0F, 210.0F };
-    float[] columnSpeedMultiplier = { 4.6F, 4.8F, 5.0F, 5.2F, 5.4F };
+    float[] columnSpeedMultiplier = { 3.0F, 3.2F, 3.4F, 3.6F, 3.8F };
+    float[] distance = { 0.0F, 0.0F, 0.0F, 0.0F, 0.0F };
     int firstRotation;
     public int lettersTyped = 0, wordsEntered = 0;
     public string typedWord = "";
     public string theWord = "";
-    float cntdnw = 120.0f, xTimer = 3.0F, roundTimer = 3.0F, smooth, letterSpawn = 0.4F, totalTime = 0.0F, fast = 0.0F, slow = 0.0F, least = 0.0F;
-    GameObject timer, flg, flg2, mute, unmute, boxContainer, statsContainer;
-    TMPro.TextMeshProUGUI timerText, AverageGuess, AverageTime, TotalGuessTime, FastGuess, SlowGuess, LeastGuess;
+    float cntdnw = 120.0f, xTimer = 3.0F, roundTimer = 3.0F, smooth, letterSpawn = 0.4F, totalTime = 0.0F, fast = 0.0F, slow = 0.0F, least = 0.0F, downPos, upPos;
+    GameObject timer, flg, flg2, mute, unmute, boxContainer, statsContainer, CorrectContainer;
+    TMPro.TextMeshProUGUI timerText, AverageGuess, AverageTime, TotalGuessTime, FastGuess, SlowGuess, LeastGuess, CorrectText, WordText;
     float[] stats = { 0, 0, 0, 0, 0, 0 }; //0 = avgguess, 1 = avgtime, 2 = totaltime, 3 = fasttime, 4 = slowtime, 5 = leastguess
     bool isPlayTime, flag, xActive, nextRound, canType, statsDown;
     int currentRound;
@@ -65,12 +66,18 @@ public class GameManager : MonoBehaviour
         boxContainer = GameObject.Find("BoxContainer");
         statsDown = false;
         statsContainer = GameObject.Find("StatBoxContainer");
+        downPos = statsContainer.transform.position.y - 500;
+        upPos = statsContainer.transform.position.y;
         AverageGuess = GameObject.Find("AverageGuess").GetComponent<TMPro.TextMeshProUGUI>();
         TotalGuessTime = GameObject.Find("TotalGuessTime").GetComponent<TMPro.TextMeshProUGUI>();
         FastGuess = GameObject.Find("FastGuess").GetComponent<TMPro.TextMeshProUGUI>();
         SlowGuess = GameObject.Find("SlowGuess").GetComponent<TMPro.TextMeshProUGUI>();
         LeastGuess = GameObject.Find("LeastGuess").GetComponent<TMPro.TextMeshProUGUI>();
         AverageTime = GameObject.Find("AverageTime").GetComponent<TMPro.TextMeshProUGUI>();
+        CorrectContainer = GameObject.Find("CorrectBox");
+        CorrectText = GameObject.Find("CorrectFailure").GetComponent<TMPro.TextMeshProUGUI>();
+        WordText = GameObject.Find("Word").GetComponent<TMPro.TextMeshProUGUI>();
+        CorrectContainer.SetActive(false);
 
     }
 
@@ -79,13 +86,13 @@ public class GameManager : MonoBehaviour
     {
         if (statsDown)
         {
-            if (statsContainer.transform.position.y > -880)
+            if (statsContainer.transform.position.y > downPos)
             {
                 statsContainer.transform.position = new Vector3(statsContainer.transform.position.x, statsContainer.transform.position.y - 1500.0F * Time.deltaTime, statsContainer.transform.position.z);
             }
         } else
         {
-            if (statsContainer.transform.position.y < -320)
+            if (statsContainer.transform.position.y < upPos)
             {
                 statsContainer.transform.position = new Vector3(statsContainer.transform.position.x, statsContainer.transform.position.y + 1500.0F * Time.deltaTime, statsContainer.transform.position.z);
             }
@@ -103,7 +110,7 @@ public class GameManager : MonoBehaviour
                         for (int j = 0; j < rows.transform.childCount; j++)
                         {
                             GameObject box = rows.transform.GetChild(j).gameObject;
-                            if (box.transform.position.x > columnX[j] && roundTimer < .7F)
+                            if (distance[j] > 2000)
                             {
                                 columnSpeeds[j] = 0;
                                 box.transform.position = new Vector3(columnX[j], box.transform.position.y, box.transform.position.z);
@@ -111,7 +118,7 @@ public class GameManager : MonoBehaviour
                             box.transform.position = new Vector3(box.transform.position.x + (columnSpeeds[j] * columnSpeedMultiplier[j]) * Time.deltaTime, box.transform.position.y, box.transform.position.z);
                             if (box.transform.position.x > 1000)
                             {
-                                box.transform.position = new Vector3(-1000 + columnX[j], box.transform.position.y, box.transform.position.z);
+                                box.transform.position = new Vector3(-1000, box.transform.position.y, box.transform.position.z);
                                 TMPro.TextMeshProUGUI text = box.GetComponent<TMPro.TextMeshProUGUI>();
                                 text.text = "";
                                 SpriteRenderer sprite = box.GetComponent<SpriteRenderer>();
@@ -119,6 +126,7 @@ public class GameManager : MonoBehaviour
                             }
                             if (i == 5)
                             {
+                                distance[j] += columnSpeeds[j] * columnSpeedMultiplier[j] * Time.deltaTime;
                                 columnSpeeds[j] += 5;
                             }
                         }
@@ -126,6 +134,11 @@ public class GameManager : MonoBehaviour
                 }
             } else
             {
+                distance[0] = 0.0F;
+                distance[1] = 0.0F;
+                distance[2] = 0.0F;
+                distance[3] = 0.0F;
+                distance[4] = 0.0F;
                 nextRound = false;
                 currentRound++;
                 isPlayTime = true;
@@ -233,12 +246,13 @@ public class GameManager : MonoBehaviour
             timerText.text = minute.ToString() + ":" + seconds;
             if (cntdnw < 0)
             {
-                GameObject box = GameObject.Find("Correctness");
-                TMPro.TextMeshProUGUI text = box.GetComponent<TMPro.TextMeshProUGUI>();
-                text.text = "FAILURE\n\nWord: " + theWord.ToUpper();
+                CorrectContainer.SetActive(true);
+                WordText.text = "Word: " + theWord.ToUpper();
+                WordText.color = new Color(.79F, .28F, .28F);
+                CorrectText.text = "FAILURE";
+                CorrectText.color = new Color(.79F, .28F, .28F);
                 sideWord = "FAILURE";
                 sideColor = new Color(1, 0, 0);
-                text.color = new Color(256, 0, 0);
                 isPlayTime = false;
                 canType = false;
                 flag = true;
@@ -427,15 +441,15 @@ public class GameManager : MonoBehaviour
                 {
                     if (isWord() == true)
                     {
-                        GameObject box = GameObject.Find("Correctness");
-                        TMPro.TextMeshProUGUI text = box.GetComponent<TMPro.TextMeshProUGUI>();
                         checkLetters();
                         if (typedWord.ToLower().Equals(theWord))
                         {
-                            text.text = "Correct!";
+                            CorrectContainer.SetActive(true);
+                            WordText.text = "";
+                            CorrectText.text = "CORRECT";
+                            CorrectText.color = new Color(0, 256, 0);
                             sideColor = new Color(0, 1, 0);
                             sideWord = "CORRECT";
-                            text.color = new Color(0, 256, 0);
                             nextRound = true;
                             canType = false;
                             isPlayTime = false;
@@ -446,10 +460,13 @@ public class GameManager : MonoBehaviour
                         {
                             if (wordsEntered == 5)
                             {
-                                text.text = "FAILURE\n\nWord: " + theWord.ToUpper();
+                                CorrectContainer.SetActive(true);
+                                WordText.text = "Word: " + theWord.ToUpper();
+                                WordText.color = new Color(.79F, .28F, .28F);
+                                CorrectText.text = "FAILURE";
+                                CorrectText.color = new Color(.79F, .28F, .28F);
                                 sideWord = "FAILURE";
                                 sideColor = new Color(1, 0, 0);
-                                text.color = new Color(256, 0, 0);
                                 isPlayTime = false;
                                 canType = false;
                                 calculateStats();
@@ -577,9 +594,7 @@ public class GameManager : MonoBehaviour
         typedWord = "";
         theWord = wordList[Random.Range(0, wordList.Length)];
         wordsEntered = 0;
-        GameObject box1 = GameObject.Find("Correctness");
-        TMPro.TextMeshProUGUI text1 = box1.GetComponent<TMPro.TextMeshProUGUI>();
-        text1.text = "";
+        CorrectContainer.SetActive(false);
         flag = false;
         if (120.0F - currentRound * 5 < 60)
         {
