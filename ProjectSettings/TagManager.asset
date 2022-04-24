@@ -41,3 +41,6 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: UI Buttons
+    uniqueID: 595962823
+    locked: 0

@@ -12,18 +12,23 @@ public class GameManager : MonoBehaviour
     string[] alphabet = { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" };
     List<Vector3> rotations = new List<Vector3>();
     List<Vector3> rotations2 = new List<Vector3>();
+    float[] columnSpeeds = { 3.0F, 3.0F, 3.0F, 3.0F, 3.0F };
+    float[] columnX = { -210.0F, -105.0F, 0.0F, 105.0F, 210.0F };
+    float[] columnSpeedMultiplier = { 3.2F, 3.4F, 3.6F, 3.8F, 4.0F };
     int firstRotation;
     public int lettersTyped = 0, wordsEntered = 0;
     public string typedWord = "";
     public string theWord = "";
-    float cntdnw = 120.0f, xTimer = 3.0F, roundTimer = 3.0F, smooth, letterSpawn = 0.4F;
-    GameObject timer, flg, flg2;
-    TMPro.TextMeshProUGUI timerText;
-    bool isPlayTime, flag, xActive, nextRound, canType;
+    float cntdnw = 120.0f, xTimer = 3.0F, roundTimer = 3.0F, smooth, letterSpawn = 0.4F, totalTime = 0.0F, fast = 0.0F, slow = 0.0F, least = 0.0F;
+    GameObject timer, flg, flg2, mute, unmute, boxContainer, statsContainer;
+    TMPro.TextMeshProUGUI timerText, AverageGuess, AverageTime, TotalGuessTime, FastGuess, SlowGuess, LeastGuess;
+    float[] stats = { 0, 0, 0, 0, 0, 0 }; //0 = avgguess, 1 = avgtime, 2 = totaltime, 3 = fasttime, 4 = slowtime, 5 = leastguess
+    bool isPlayTime, flag, xActive, nextRound, canType, statsDown;
     int currentRound;
     public AudioSource audio;
     string sideWord = "WORDLERUSH";
     Color sideColor;
+    float shakeSpeed = 800F;
     // Start is called before the first frame update
     void Start()
     {
@@ -54,16 +59,71 @@ public class GameManager : MonoBehaviour
         firstRotation = Random.Range(-360, 360);
         Application.targetFrameRate = 100;
         sideColor = new Color(1, 1, 1);
+        mute = GameObject.Find("Mute").gameObject;
+        mute.SetActive(false);
+        unmute = GameObject.Find("Unmute").gameObject;
+        boxContainer = GameObject.Find("BoxContainer");
+        statsDown = false;
+        statsContainer = GameObject.Find("StatBoxContainer");
+        AverageGuess = GameObject.Find("AverageGuess").GetComponent<TMPro.TextMeshProUGUI>();
+        TotalGuessTime = GameObject.Find("TotalGuessTime").GetComponent<TMPro.TextMeshProUGUI>();
+        FastGuess = GameObject.Find("FastGuess").GetComponent<TMPro.TextMeshProUGUI>();
+        SlowGuess = GameObject.Find("SlowGuess").GetComponent<TMPro.TextMeshProUGUI>();
+        LeastGuess = GameObject.Find("LeastGuess").GetComponent<TMPro.TextMeshProUGUI>();
+        AverageTime = GameObject.Find("AverageTime").GetComponent<TMPro.TextMeshProUGUI>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (statsDown)
+        {
+            if (statsContainer.transform.position.y > -880)
+            {
+                statsContainer.transform.position = new Vector3(statsContainer.transform.position.x, statsContainer.transform.position.y - 1500.0F * Time.deltaTime, statsContainer.transform.position.z);
+            }
+        } else
+        {
+            if (statsContainer.transform.position.y < -320)
+            {
+                statsContainer.transform.position = new Vector3(statsContainer.transform.position.x, statsContainer.transform.position.y + 1500.0F * Time.deltaTime, statsContainer.transform.position.z);
+            }
+        }
         if (nextRound)
         {
             if (roundTimer > 0)
             {
                 roundTimer -= Time.deltaTime;
+                if (roundTimer < 2.0F)
+                {
+                    for (int i = 0; i < boxContainer.transform.childCount; i++)
+                    {
+                        GameObject rows = boxContainer.transform.GetChild(i).gameObject;
+                        for (int j = 0; j < rows.transform.childCount; j++)
+                        {
+                            GameObject box = rows.transform.GetChild(j).gameObject;
+                            if (box.transform.position.x > columnX[j] && roundTimer < .7F)
+                            {
+                                columnSpeeds[j] = 0;
+                                box.transform.position = new Vector3(columnX[j], box.transform.position.y, box.transform.position.z);
+                            }
+                            box.transform.position = new Vector3(box.transform.position.x + (columnSpeeds[j] * columnSpeedMultiplier[j]) * Time.deltaTime, box.transform.position.y, box.transform.position.z);
+                            if (box.transform.position.x > 1000)
+                            {
+                                box.transform.position = new Vector3(-1000 + columnX[j], box.transform.position.y, box.transform.position.z);
+                                TMPro.TextMeshProUGUI text = box.GetComponent<TMPro.TextMeshProUGUI>();
+                                text.text = "";
+                                SpriteRenderer sprite = box.GetComponent<SpriteRenderer>();
+                                sprite.color = new Color(.79F, .28F, .28F);
+                            }
+                            if (i == 5)
+                            {
+                                columnSpeeds[j] += 5;
+                            }
+                        }
+                    }
+                }
             } else
             {
                 nextRound = false;
@@ -83,11 +143,23 @@ public class GameManager : MonoBehaviour
                 GameObject X = GameObject.Find("Cross");
                 TMPro.TextMeshProUGUI XText = X.GetComponent<TMPro.TextMeshProUGUI>();
                 XText.alpha -= .4F * Time.deltaTime;
+                GameObject row = GameObject.Find("Row" + wordsEntered.ToString());
+                if (xTimer > 2.5)
+                {
+                    row.transform.position = new Vector3(row.transform.position.x - (shakeSpeed * Time.deltaTime), row.transform.position.y, row.transform.position.z);
+                    if (row.transform.position.x > 20 || row.transform.position.x < -20)
+                    {
+                        shakeSpeed = -shakeSpeed;
+                    }
+                } else
+                {
+                    row.transform.position = new Vector3(0, row.transform.position.y, row.transform.position.z);
+                }
 
             } else
             {
                 xActive = false;
-
+                shakeSpeed = 800F;
             }
         }
         if (letterSpawn > 0)
@@ -146,6 +218,9 @@ public class GameManager : MonoBehaviour
             if (cntdnw > 0)
             {
                 cntdnw -= Time.deltaTime;
+                totalTime += Time.deltaTime;
+                fast += Time.deltaTime;
+                slow += Time.deltaTime;
             }
             int b = (int) System.Math.Round(cntdnw, 0);
             int minute = b / 60;
@@ -167,6 +242,7 @@ public class GameManager : MonoBehaviour
                 isPlayTime = false;
                 canType = false;
                 flag = true;
+                calculateStats();
             }
         }
         UpdateText();
@@ -361,7 +437,10 @@ public class GameManager : MonoBehaviour
                             sideWord = "CORRECT";
                             text.color = new Color(0, 256, 0);
                             nextRound = true;
+                            canType = false;
                             isPlayTime = false;
+                            least = wordsEntered + 1;
+                            calculateStats();
                         }
                         else
                         {
@@ -372,6 +451,8 @@ public class GameManager : MonoBehaviour
                                 sideColor = new Color(1, 0, 0);
                                 text.color = new Color(256, 0, 0);
                                 isPlayTime = false;
+                                canType = false;
+                                calculateStats();
                             }
                             else
                             {
@@ -400,6 +481,18 @@ public class GameManager : MonoBehaviour
             resetBoard();
             isPlayTime = false;
             canType = true;
+            AverageGuess.text = "Average Guesses: ";
+            AverageTime.text = "Average Time: ";
+            TotalGuessTime.text = "Total Guessing Time: ";
+            FastGuess.text = "Fastest Guess: ";
+            SlowGuess.text = "Slowest Guess: ";
+            LeastGuess.text = "Least Guesses: ";
+            stats[0] = 0;
+            stats[1] = 0;
+            stats[2] = 0;
+            stats[3] = 0;
+            stats[4] = 0;
+            stats[5] = 0;
         }
     }
 
@@ -469,7 +562,7 @@ public class GameManager : MonoBehaviour
                 TMPro.TextMeshProUGUI text = box.GetComponent<TMPro.TextMeshProUGUI>();
                 text.text = "";
                 SpriteRenderer sprite = box.GetComponent<SpriteRenderer>();
-                sprite.color = new Color(.9F, .2F, .2F);
+                sprite.color = new Color(.79F, .28F, .28F);
             }
         }
         GameObject keyboard = GameObject.Find("Keyboard");
@@ -503,6 +596,10 @@ public class GameManager : MonoBehaviour
         GameObject roundObj = GameObject.Find("Round");
         TMPro.TextMeshProUGUI roundText = roundObj.GetComponent<TMPro.TextMeshProUGUI>();
         roundText.text = roundText.text.Substring(0, roundText.text.IndexOf(" ") + 1) + currentRound.ToString();
+        canType = true;
+        fast = 0.0F;
+        slow = 0.0F;
+        least = 0.0F;
     }
 
     bool isWord()
@@ -556,5 +653,100 @@ public class GameManager : MonoBehaviour
                 rotations2.RemoveAt(0);
             }
         }
+    }
+
+    void calculateStats()
+    {
+        stats[0] = ((stats[0] * (currentRound - 1)) + wordsEntered + 1) / currentRound;
+        stats[1] = totalTime / currentRound;
+        stats[2] = totalTime;
+        if (fast < stats[3] || stats[3] == 0)
+        {
+            stats[3] = fast;
+        }
+        if (slow > stats[4])
+        {
+            stats[4] = slow;
+        }
+        if (least < stats[5] || stats[5] == 0)
+        {
+            stats[5] = least;
+        }
+        AverageGuess.text = "Average Guesses: " + (Mathf.Round(stats[0] * 10.0F) * 0.1F);
+        if (Mathf.Round(stats[1]) > 60)
+        {
+            if (Mathf.Round(stats[1]) % 60 < 10)
+            {
+                AverageTime.text = "Average Time: 1:0" + Mathf.Round(stats[1]) % 60;
+            } else
+            {
+                AverageTime.text = "Average Time: 1:" + Mathf.Round(stats[1]) % 60;
+            }
+        } else
+        {
+            AverageTime.text = "Average Time: " + Mathf.Round(stats[1]) + "s";
+        }
+        if (Mathf.Round(stats[2]) > 60)
+        {
+            if (Mathf.Round(stats[2] % 60) < 10)
+            {
+                TotalGuessTime.text = "Total Guessing Time: " + Mathf.FloorToInt(stats[2] / 60) + ":0" + Mathf.Round(stats[2] % 60);
+            } else
+            {
+                TotalGuessTime.text = "Total Guessing Time: " + Mathf.FloorToInt(stats[2] / 60) + ":" + Mathf.Round(stats[2] % 60);
+            }
+        } else
+        {
+            TotalGuessTime.text = "Total Guessing Time: " + Mathf.Round(stats[2]) + "s";
+        }
+        FastGuess.text = "Fastest Guess: " + Mathf.Round(stats[3]);
+        SlowGuess.text = "Slowest Guess: " + Mathf.Round(stats[4]);
+        LeastGuess.text = "Least Guesses: " + Mathf.Round(stats[5]);
+    }
+
+    public void onAudioClick()
+    {
+        if (audio.isPlaying)
+        {
+            audio.Pause();
+            mute.SetActive(true);
+            unmute.SetActive(false);
+        } else
+        {
+            audio.Play();
+            mute.SetActive(false);
+            unmute.SetActive(true);
+        }
+    }
+
+    public void onStatsClick()
+    {
+        if (statsDown == false)
+        {
+            statsDown = true;
+        } else
+        {
+            statsDown = false;
+        }
+    }
+
+    public void onRestartClick()
+    {
+        currentRound = 1;
+        resetBoard();
+        isPlayTime = false;
+        canType = true;
+        AverageGuess.text = "Average Guesses: ";
+        AverageTime.text = "Average Time: ";
+        TotalGuessTime.text = "Total Guessing Time: ";
+        FastGuess.text = "Fastest Guess: ";
+        SlowGuess.text = "Slowest Guess: ";
+        LeastGuess.text = "Least Guesses: ";
+        stats[0] = 0;
+        stats[1] = 0;
+        stats[2] = 0;
+        stats[3] = 0;
+        stats[4] = 0;
+        stats[5] = 0;
     }
 }
