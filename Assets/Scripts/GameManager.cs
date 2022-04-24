@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
     public int lettersTyped = 0, wordsEntered = 0;
     public string typedWord = "";
     public string theWord = "";
-    float cntdnw = 120.0f, xTimer = 3.0F, roundTimer = 3.0F, smooth, letterSpawn = 0.4F, totalTime = 0.0F, fast = 0.0F, slow = 0.0F, least = 0.0F, downPos, upPos;
+    float cntdnw = 120.0f, xTimer = 3.0F, roundTimer = 3.5F, smooth, letterSpawn = 0.4F, totalTime = 0.0F, fast = 0.0F, slow = 0.0F, least = 0.0F, downPos, upPos;
     GameObject timer, flg, flg2, mute, unmute, boxContainer, statsContainer, CorrectContainer;
     TMPro.TextMeshProUGUI timerText, AverageGuess, AverageTime, TotalGuessTime, FastGuess, SlowGuess, LeastGuess, CorrectText, WordText;
     float[] stats = { 0, 0, 0, 0, 0, 0 }; //0 = avgguess, 1 = avgtime, 2 = totaltime, 3 = fasttime, 4 = slowtime, 5 = leastguess
@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
         boxContainer = GameObject.Find("BoxContainer");
         statsDown = false;
         statsContainer = GameObject.Find("StatBoxContainer");
-        downPos = statsContainer.transform.position.y - 580;
+        downPos = statsContainer.transform.position.y - 550;
         upPos = statsContainer.transform.position.y;
         AverageGuess = GameObject.Find("AverageGuess").GetComponent<TMPro.TextMeshProUGUI>();
         TotalGuessTime = GameObject.Find("TotalGuessTime").GetComponent<TMPro.TextMeshProUGUI>();
@@ -102,7 +102,7 @@ public class GameManager : MonoBehaviour
             if (roundTimer > 0)
             {
                 roundTimer -= Time.deltaTime;
-                if (roundTimer < 2.0F)
+                if (roundTimer < 2.5F)
                 {
                     for (int i = 0; i < boxContainer.transform.childCount; i++)
                     {
@@ -608,7 +608,7 @@ public class GameManager : MonoBehaviour
         GameObject X = GameObject.Find("Cross");
         TMPro.TextMeshProUGUI XText = X.GetComponent<TMPro.TextMeshProUGUI>();
         XText.alpha = 0;
-        roundTimer = 3.0F;
+        roundTimer = 3.5F;
         GameObject roundObj = GameObject.Find("Round");
         TMPro.TextMeshProUGUI roundText = roundObj.GetComponent<TMPro.TextMeshProUGUI>();
         roundText.text = roundText.text.Substring(0, roundText.text.IndexOf(" ") + 1) + currentRound.ToString();
@@ -715,8 +715,36 @@ public class GameManager : MonoBehaviour
         {
             TotalGuessTime.text = "Total Guessing Time: " + Mathf.Round(stats[2]) + "s";
         }
-        FastGuess.text = "Fastest Guess: " + Mathf.Round(stats[3]);
-        SlowGuess.text = "Slowest Guess: " + Mathf.Round(stats[4]);
+        if (Mathf.Round(stats[3]) > 60)
+        {
+            if (Mathf.Round(stats[3] % 60) < 10)
+            {
+                FastGuess.text = "Fastest Guess: " + Mathf.FloorToInt(stats[3] / 60) + ":0" + Mathf.Round(stats[3] % 60);
+            }
+            else
+            {
+                FastGuess.text = "Fastest Guess: " + Mathf.FloorToInt(stats[3] / 60) + ":" + Mathf.Round(stats[3] % 60);
+            }
+        }
+        else
+        {
+            FastGuess.text = "Fastest Guess: " + Mathf.Round(stats[3]) + "s";
+        }
+        if (Mathf.Round(stats[4]) > 60)
+        {
+            if (Mathf.Round(stats[4] % 60) < 10)
+            {
+                SlowGuess.text = "Slowest Guess: " + Mathf.FloorToInt(stats[4] / 60) + ":0" + Mathf.Round(stats[4] % 60);
+            }
+            else
+            {
+                SlowGuess.text = "Slowest Guess: " + Mathf.FloorToInt(stats[4] / 60) + ":" + Mathf.Round(stats[4] % 60);
+            }
+        }
+        else
+        {
+            SlowGuess.text = "Slowest Guess: " + Mathf.Round(stats[4]) + "s";
+        }
         LeastGuess.text = "Least Guesses: " + Mathf.Round(stats[5]);
     }
 
