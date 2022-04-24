@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     List<Vector3> rotations2 = new List<Vector3>();
     float[] columnSpeeds = { 3.0F, 3.0F, 3.0F, 3.0F, 3.0F };
     float[] columnX = { -210.0F, -105.0F, 0.0F, 105.0F, 210.0F };
-    float[] columnSpeedMultiplier = { 3.2F, 3.4F, 3.6F, 3.8F, 4.0F };
+    float[] columnSpeedMultiplier = { 4.0F, 4.2F, 4.4F, 4.4F, 4.6F };
     int firstRotation;
     public int lettersTyped = 0, wordsEntered = 0;
     public string typedWord = "";
@@ -478,6 +478,7 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             currentRound = 1;
+            totalTime = 0.0F;
             resetBoard();
             isPlayTime = false;
             canType = true;
@@ -742,6 +743,7 @@ public class GameManager : MonoBehaviour
         FastGuess.text = "Fastest Guess: ";
         SlowGuess.text = "Slowest Guess: ";
         LeastGuess.text = "Least Guesses: ";
+        totalTime = 0.0F;
         stats[0] = 0;
         stats[1] = 0;
         stats[2] = 0;
