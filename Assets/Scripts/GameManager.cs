@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     TMPro.TextMeshProUGUI timerText, AverageGuess, AverageTime, TotalGuessTime, FastGuess, SlowGuess, LeastGuess, CorrectText, WordText;
     float[] stats = { 0, 0, 0, 0, 0, 0 }; //0 = avgguess, 1 = avgtime, 2 = totaltime, 3 = fasttime, 4 = slowtime, 5 = leastguess
     bool isPlayTime, flag, xActive, nextRound, canType, statsDown;
-    int currentRound;
+    public int currentRound;
     public AudioSource audio;
     string sideWord = "WORDLERUSH";
     Color sideColor;
