@@ -21,15 +21,16 @@ public class GameManager : MonoBehaviour
     public string typedWord = "";
     public string theWord = "";
     float cntdnw = 120.0f, xTimer = 3.0F, roundTimer = 3.5F, smooth, letterSpawn = 0.4F, totalTime = 0.0F, fast = 0.0F, slow = 0.0F, least = 0.0F, downPos, upPos;
-    GameObject timer, flg, flg2, mute, unmute, boxContainer, statsContainer, CorrectContainer;
+    GameObject timer, flg, flg2, mute, unmute, boxContainer, statsContainer, CorrectContainer, shopContainer;
     TMPro.TextMeshProUGUI timerText, AverageGuess, AverageTime, TotalGuessTime, FastGuess, SlowGuess, LeastGuess, CorrectText, WordText;
     float[] stats = { 0, 0, 0, 0, 0, 0 }; //0 = avgguess, 1 = avgtime, 2 = totaltime, 3 = fasttime, 4 = slowtime, 5 = leastguess
-    bool isPlayTime, flag, xActive, nextRound, canType, statsDown;
+    public bool isPlayTime, flag, xActive, nextRound, canType, statsDown, invOpen = false;
     public int currentRound;
     public AudioSource audio;
     string sideWord = "WORDLERUSH";
     Color sideColor;
     float shakeSpeed = 800F;
+    public float coins = 0.0F;
     // Start is called before the first frame update
     void Start()
     {
@@ -76,9 +77,10 @@ public class GameManager : MonoBehaviour
         AverageTime = GameObject.Find("AverageTime").GetComponent<TMPro.TextMeshProUGUI>();
         CorrectContainer = GameObject.Find("CorrectBox");
         CorrectText = GameObject.Find("CorrectFailure").GetComponent<TMPro.TextMeshProUGUI>();
+        shopContainer = GameObject.Find("InventoryShop");
         WordText = GameObject.Find("Word").GetComponent<TMPro.TextMeshProUGUI>();
         CorrectContainer.SetActive(false);
-
+        shopContainer.SetActive(false);
     }
 
     // Update is called once per frame
@@ -454,6 +456,9 @@ public class GameManager : MonoBehaviour
                             canType = false;
                             isPlayTime = false;
                             least = wordsEntered + 1;
+                            coins += (70 - (least * 10));
+                            coins += Mathf.Round((120 / fast) * 10);
+                            GameObject.Find("Coins").GetComponent<TMPro.TextMeshProUGUI>().text = coins.ToString();
                             calculateStats();
                         }
                         else
@@ -793,5 +798,19 @@ public class GameManager : MonoBehaviour
         stats[3] = 0;
         stats[4] = 0;
         stats[5] = 0;
+    }
+
+    public void onShopClick()
+    {
+        if (shopContainer.activeInHierarchy == false)
+        {
+            shopContainer.SetActive(true);
+            invOpen = true;
+        }
+        else
+        {
+            shopContainer.SetActive(false);
+            invOpen = false;
+        }
     }
 }
