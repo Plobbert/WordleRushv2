@@ -17,10 +17,11 @@ public class GameManager : MonoBehaviour
     float[] columnSpeedMultiplier = { 3.0F, 3.2F, 3.4F, 3.6F, 3.8F };
     float[] distance = { 0.0F, 0.0F, 0.0F, 0.0F, 0.0F };
     int firstRotation;
-    public int lettersTyped = 0, wordsEntered = 0;
+    public int lettersTyped = 0, wordsEntered = 0, secondChances = 0;
     public string typedWord = "";
     public string theWord = "";
-    float cntdnw = 120.0f, xTimer = 3.0F, roundTimer = 3.5F, smooth, letterSpawn = 0.4F, totalTime = 0.0F, fast = 0.0F, slow = 0.0F, least = 0.0F, downPos, upPos;
+    public string foundLetters = "";
+    public float cntdnw = 120.0f, xTimer = 3.0F, roundTimer = 3.5F, smooth, letterSpawn = 0.4F, totalTime = 0.0F, fast = 0.0F, slow = 0.0F, least = 0.0F, downPos, upPos;
     GameObject timer, flg, flg2, mute, unmute, boxContainer, statsContainer, CorrectContainer, shopContainer;
     TMPro.TextMeshProUGUI timerText, AverageGuess, AverageTime, TotalGuessTime, FastGuess, SlowGuess, LeastGuess, CorrectText, WordText;
     float[] stats = { 0, 0, 0, 0, 0, 0 }; //0 = avgguess, 1 = avgtime, 2 = totaltime, 3 = fasttime, 4 = slowtime, 5 = leastguess
@@ -28,12 +29,14 @@ public class GameManager : MonoBehaviour
     public int currentRound;
     public AudioSource audio;
     string sideWord = "WORDLERUSH";
+    Inventory script;
     Color sideColor;
     float shakeSpeed = 800F;
-    public float coins = 0.0F;
+    public float coins = 0.0F, coinMultiplier = 1.0F;
     // Start is called before the first frame update
     void Start()
     {
+        script = GameObject.Find("InventoryShop").GetComponent<Inventory>();
         theWord = wordList[Random.Range(0, wordList.Length)];
         timer = GameObject.Find("Timer");
         timerText = timer.GetComponent<TMPro.TextMeshProUGUI>();
@@ -248,17 +251,37 @@ public class GameManager : MonoBehaviour
             timerText.text = minute.ToString() + ":" + seconds;
             if (cntdnw < 0)
             {
-                CorrectContainer.SetActive(true);
-                WordText.text = "Word: " + theWord.ToUpper();
-                WordText.color = new Color(.79F, .28F, .28F);
-                CorrectText.text = "FAILURE";
-                CorrectText.color = new Color(.79F, .28F, .28F);
-                sideWord = "FAILURE";
-                sideColor = new Color(1, 0, 0);
-                isPlayTime = false;
-                canType = false;
-                flag = true;
-                calculateStats();
+                if (secondChances == 0)
+                {
+                    CorrectContainer.SetActive(true);
+                    WordText.text = "Word: " + theWord.ToUpper();
+                    WordText.color = new Color(.79F, .28F, .28F);
+                    CorrectText.text = "FAILURE";
+                    CorrectText.color = new Color(.79F, .28F, .28F);
+                    sideWord = "FAILURE";
+                    sideColor = new Color(1, 0, 0);
+                    isPlayTime = false;
+                    canType = false;
+                    flag = true;
+                    coinMultiplier = 1.0F;
+                    calculateStats();
+                } else
+                {
+                    CorrectContainer.SetActive(true);
+                    WordText.text = "Word: " + theWord.ToUpper();
+                    WordText.color = new Color(.79F, .28F, .28F);
+                    CorrectText.text = "FAILURE";
+                    CorrectText.color = new Color(.79F, .28F, .28F);
+                    sideWord = "SECONDCHANCE";
+                    sideColor = new Color(1.0F, .7F, .7F);
+                    nextRound = true;
+                    canType = false;
+                    isPlayTime = false;
+                    coinMultiplier = 1.0F;
+                    calculateStats();
+                    script.removeSecondChance();
+                    secondChances--;
+                }
             }
         }
         UpdateText();
@@ -456,8 +479,9 @@ public class GameManager : MonoBehaviour
                             canType = false;
                             isPlayTime = false;
                             least = wordsEntered + 1;
-                            coins += (70 - (least * 10));
-                            coins += Mathf.Round((120 / fast) * 10);
+                            coins += (70 - (least * 10)) * coinMultiplier;
+                            coins += Mathf.Round((120 / fast) * 10) * coinMultiplier;
+                            coinMultiplier = 1.0F;
                             GameObject.Find("Coins").GetComponent<TMPro.TextMeshProUGUI>().text = coins.ToString();
                             calculateStats();
                         }
@@ -465,16 +489,36 @@ public class GameManager : MonoBehaviour
                         {
                             if (wordsEntered == 5)
                             {
-                                CorrectContainer.SetActive(true);
-                                WordText.text = "Word: " + theWord.ToUpper();
-                                WordText.color = new Color(.79F, .28F, .28F);
-                                CorrectText.text = "FAILURE";
-                                CorrectText.color = new Color(.79F, .28F, .28F);
-                                sideWord = "FAILURE";
-                                sideColor = new Color(1, 0, 0);
-                                isPlayTime = false;
-                                canType = false;
-                                calculateStats();
+                                if (secondChances == 0)
+                                {
+                                    CorrectContainer.SetActive(true);
+                                    coinMultiplier = 1.0F;
+                                    WordText.text = "Word: " + theWord.ToUpper();
+                                    WordText.color = new Color(.79F, .28F, .28F);
+                                    CorrectText.text = "FAILURE";
+                                    CorrectText.color = new Color(.79F, .28F, .28F);
+                                    sideWord = "FAILURE";
+                                    sideColor = new Color(1, 0, 0);
+                                    isPlayTime = false;
+                                    canType = false;
+                                    calculateStats();
+                                } else
+                                {
+                                    secondChances--;
+                                    CorrectContainer.SetActive(true);
+                                    WordText.text = "Word: " + theWord.ToUpper();
+                                    WordText.color = new Color(.79F, .28F, .28F);
+                                    CorrectText.text = "FAILURE";
+                                    CorrectText.color = new Color(.79F, .28F, .28F);
+                                    sideWord = "SECONDCHANCE";
+                                    sideColor = new Color(1.0F, .7F, .7F);
+                                    nextRound = true;
+                                    canType = false;
+                                    isPlayTime = false;
+                                    coinMultiplier = 1.0F;
+                                    calculateStats();
+                                    script.removeSecondChance();
+                                }
                             }
                             else
                             {
@@ -544,11 +588,13 @@ public class GameManager : MonoBehaviour
             if (letterTested.Equals(theWord.Substring(i, 1)))
             {
                 sprite.color = new Color(0, 256, 0);
+                foundLetters += letterTested;
                 letterStatus = 1;
             }
             else if (isLetterInWord)
             {
                 sprite.color = new Color(.83F, .83F, 0);
+                foundLetters += letterTested;
                 letterStatus = 2;
             } else
             {
@@ -576,6 +622,7 @@ public class GameManager : MonoBehaviour
 
     void resetBoard()
     {
+        foundLetters = "";
         for (int i = 0; i < 6; i++)
         {
             for (int j = 0; j < 5; j++)

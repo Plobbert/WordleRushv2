@@ -5,7 +5,8 @@ using UnityEngine;
 public class Item
 {
     public string itemName = "", description = "";
-    public int cost = 0, width = 0, height = 0, maxAmount = 0, currentAmount = 0, roundUnlocked = 0;
+    public int cost = 0, width = 0, height = 0, maxAmount = 0, currentAmount = 0, roundUnlocked = 0, row = 0, column = 0;
+    public GameObject icon;
 
     public Item(string name, string desc, int theCost, int theWidth, int theHeight, int theMaxAmount, int theCurrentAmount, int theRoundUnlocked)
     {
@@ -96,6 +97,36 @@ public class Item
     public int GetRoundUnlocked()
     {
         return roundUnlocked;
+    }
+
+    public void SetRow(int theRow)
+    {
+        row = theRow;
+    }
+
+    public int GetRow()
+    {
+        return row;
+    }
+
+    public void SetColumn(int theColumn)
+    {
+        column = theColumn;
+    }
+
+    public int GetColumn()
+    {
+        return column;
+    }
+
+    public void SetIcon(GameObject theIcon)
+    {
+        icon = theIcon;
+    }
+
+    public GameObject GetIcon()
+    {
+        return icon;
     }
 }
 
