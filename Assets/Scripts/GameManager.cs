@@ -89,6 +89,11 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            coins += 100;
+            GameObject.Find("Coins").GetComponent<TMPro.TextMeshProUGUI>().text = coins.ToString();
+        }
         if (statsDown)
         {
             if (statsContainer.transform.position.y > downPos)
